@@ -1,0 +1,18 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  ml-template:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: This is ml-template service
+      NasConfig: Auto
+    function-template:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: index.initializer
+        InitializationTimeout: 30
+        Handler: index.handler
+        Runtime: python3
+        Timeout: 30
+        MemorySize: 1024
+        CodeUri: /Users/masahiro/fc/ml-template/function-template
