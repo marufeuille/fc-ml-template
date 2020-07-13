@@ -29,6 +29,7 @@ def initializer(context):
     logger.info('Model Loading')
     model = tf.keras.models.load_model('model_path')
     logger.info('Model Loaded')
+    
     logger.info('Scaler Loading')
     scaler = pickle.load(open('scaler_path', 'rb'))
     logger.info('Scaler Loaded')

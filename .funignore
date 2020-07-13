@@ -1,0 +1,9 @@
+.env
+.fun/
+.gitignore
+.funignore
+.git/
+models/
+Funfile
+template.yml
+README.md

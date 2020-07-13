@@ -15,4 +15,4 @@ Resources:
         Runtime: python3
         Timeout: 30
         MemorySize: 1024
-        CodeUri: /Users/masahiro/fc/ml-template/function-template
+        CodeUri: ./code

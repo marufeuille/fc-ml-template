@@ -1,38 +1,98 @@
-# AlibabaCloud FC with ML model template
+# ML model on AlibabaCloud Function Compute (template)
 ## Fun?
 - [Funcraft](https://github.com/alibaba/funcraft)
 - [VSCode Extention](https://github.com/alibaba/serverless-vscode)
 
-## Files/Dirs
-### code/
-- 名前は何でも良い。
-- 中身はこれまた名前は何でも良いが、index.py（initializer, handlerが含まれるもの）とそれ以外のヘルパーでは分けたほうが良いと思っている。
+## How to use
+### Install docker & nodejs
+### Install [Fun](https://github.com/alibaba/funcraft)
+- https://www.alibabacloud.com/help/doc-detail/161136.htm
 
-### models/
-- これまた名前は何でも良いが、モデルや外部リソースは別ディレクトリに格納し、後述するFunfile内でCopyするほうが良さげ
+### Configuration Fun
+- https://www.alibabacloud.com/help/doc-detail/146702.htm
 
-### template.yml
+### clone this repo.
+```bash
+git clone https://github.com/marufeuille/fc-ml-template
+```
+
+### 外部リソースの用意
+- 実際のところ、ディレクトリ名は何でも良いが、このドキュメントではmodelsとして扱う
+- 外部リソースは例えば、学習済みのモデルやスケーラーなどを指す
+
+```bash
+mkdir models
+cp ORIGINAL_RESOURCE_DIR/ORIGINAL_RESOURCE ./models/
+```
+
+### write code
+- 基本的に配下のようにコードは作る
+- メインファイル(ここではindex.pyとする)
+    - 初期化関数(ここではinitializerとする)及びハンドラ関数を定義する
+```python
+import XXXX
+
+def initializer(context):
+    # initializeしたい中身
+    # 1度したら使い回せる処理、例えばDBとの接続、モデルのロード等
+
+def handler(event, context):
+    # 処理の中身(モデルを使った予測等)
+```
+
+- ヘルパ関数
+    - その他使う関数は別ファイルにしてimportして利用する
+
+### template.ymlの作成
 - ROS(Resource Orchestration Service)のtemplateファイル。
 - イチから作るのは難しいので、以下参考を見ながら作ると良い
     - [template.yml example](https://github.com/alibaba/funcraft/tree/master/examples)
 - handlerを指定するときは、例えばindex.py内のmy_handlerを指定したければ、index.my_handlerのようにする。initializerも同じ。
-- Service(ml-template) > Properties > NAS: Autoは、後述するとおりおすすめ設定として記述している
+- このディレクトリに付属のtemplate.yml内のService(ml-template) > Properties > NAS: Autoは、コード以外のリソースを利用する場合は基本的にOnにしておいたほうが捗る。
 
-### Funfile
-- Functionで動作する環境を定義する。
-- ローカルビルド時にはここに書いた指定に従ってコンテナがダウンロードされ、その上で必要パッケージのインストールやローカルリソースがコピーされる。
-- 完了後、パッケージやコピーしたリソースはローカルに書き戻される
-- これを関数とまとめてアップロードするか,NASにアップロードするかして、FCから見えるようにする。
-- 追加となるものの容量が小さければ関数にまとめても良いと思うが、ML系は基本的にまとまった容量があるためNASをおすすめする。
-- 関数とまとめてアップロードすると、関数で1行直しただけでも再度アップロードされることになり重たい。(おそらく、FCの起動にも影響する)
+### Funfileの作成
+- index.py, ヘルパ関数内で使う依存関係やOSのパッケージ(apt), モデルのコピーを記載する
+- Dockerfileによく似た書き方(実際にこれをもとにDockerfileが自動生成されている)
+- Funfileはtemplate.yml内に指定したCodeUriに置く
 
+- 例
+```
+RUNTIME python3
+RUN fun-install pip install scikit-learn==0.22.0 -t /mnt/auto
+RUN fun-install pip install numpy -t /mnt/auto
+RUN fun-install pip install pandas -t /mnt/auto
+RUN fun-install pip install h5py -t /mnt/auto
+RUN fun-install pip install tensorflow -t /mnt/auto
+COPY ./models /mnt/auto/models
+```
 
-- サンプルの場合、Python3系コンテナ内で必要pipパッケージをインストール後、modelsディレクトリの中身を/mnt/auto/modelsにコピーしている(通常、NASがマウントされるのは/mnt/auto)
+### Let's build
+
+- NAS領域の用意
+```bash
+fun nas init
+```
+
+- 必要パッケージ等の導入
+```bash
+fun install
+```
+
+- NAS領域のSYNC
+```bash
+fun nas sync
+```
+
+- デプロイ
+```bash
+fun deploy
+```
+- 以降コードを変更したときはこれを実行する
+
+## Sample
+- あとでつくる
 
 ## Others
-### Sync NAS
-- Functionをデプロイしただけではだめで、NASとのSyncは別途コマンドを叩く必要あり。
-
 ### PAYG vs Subscription
 - FunctionComputeは基本的にはPAYGサービスであり、提供されるコンテナがいつ消えるかは指定できない。
 - Subscriptionタイプのリソースを契約することで、契約中はコンテナが永続化(少なくとも1日以上は残っていた)
