@@ -27,27 +27,27 @@ cp ORIGINAL_RESOURCE_DIR/ORIGINAL_RESOURCE ./models/
 
 ### write code
 - 基本的に配下のようにコードは作る
-- メインファイル(ここではindex.pyとする)
+- メインファイル(ここではindex.pyとしている)
     - 初期化関数(ここではinitializerとする)及びハンドラ関数を定義する
+    - 初期化関数は使っても使わなくてもいいが、MLモデルのようにロードに時間がかかりリクエストの処理に影響を及ぼすもの、かつ、一度ロードしたら使い回せるものはこちらに記載すべき
 ```python
-import XXXX
-
 def initializer(context):
     # initializeしたい中身
     # 1度したら使い回せる処理、例えばDBとの接続、モデルのロード等
+    # 作成したオブジェクトはglobalしておくことで、handlerから利用可能
 
 def handler(event, context):
     # 処理の中身(モデルを使った予測等)
 ```
 
-- ヘルパ関数
+- ヘルパ関数(ここではhelper.pyとしているう)
     - その他使う関数は別ファイルにしてimportして利用する
 
 ### template.ymlの作成
 - ROS(Resource Orchestration Service)のtemplateファイル。
 - イチから作るのは難しいので、以下参考を見ながら作ると良い
     - [template.yml example](https://github.com/alibaba/funcraft/tree/master/examples)
-- handlerを指定するときは、例えばindex.py内のmy_handlerを指定したければ、index.my_handlerのようにする。initializerも同じ。
+- handlerを指定するときは、例えばindex.py内のmy_handlerを指定したければ、index.my_handlerのようにする。initializerも同じ。ファイル名(拡張子抜き).関数名。
 - このディレクトリに付属のtemplate.yml内のService(ml-template) > Properties > NAS: Autoは、コード以外のリソースを利用する場合は基本的にOnにしておいたほうが捗る。
 - CodeUriは./としてあるが、こうするとカレントディレクトリ内にあるすべてのファイルをアップロードしてしまう。これを避けるために後半で.funignoreを作成する
 
