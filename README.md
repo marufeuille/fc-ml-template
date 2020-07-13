@@ -49,9 +49,10 @@ def handler(event, context):
     - [template.yml example](https://github.com/alibaba/funcraft/tree/master/examples)
 - handlerを指定するときは、例えばindex.py内のmy_handlerを指定したければ、index.my_handlerのようにする。initializerも同じ。
 - このディレクトリに付属のtemplate.yml内のService(ml-template) > Properties > NAS: Autoは、コード以外のリソースを利用する場合は基本的にOnにしておいたほうが捗る。
+- CodeUriは./としてあるが、こうするとカレントディレクトリ内にあるすべてのファイルをアップロードしてしまう。これを避けるために後半で.funignoreを作成する
 
 ### Funfileの作成
-- index.py, ヘルパ関数内で使う依存関係やOSのパッケージ(apt), モデルのコピーを記載する
+- index.py, ヘルパ関数内で使う依存関係やOSのパッケージ(apt), モデルや必要なリソースのコピーを記載する
 - Dockerfileによく似た書き方(実際にこれをもとにDockerfileが自動生成されている)
 - Funfileはtemplate.yml内に指定したCodeUriに置く
 
@@ -65,6 +66,12 @@ RUN fun-install pip install h5py -t /mnt/auto
 RUN fun-install pip install tensorflow -t /mnt/auto
 COPY ./models /mnt/auto/models
 ```
+
+### .funignore
+- codeをdeployするときに、何も書かないと同じディレクトリ内のもの全てがアップロードされてしまう
+- 邪魔なので、必要最小限のコードだけアップロードされるようにする
+
+- コード以外のリソースは基本的にNASに置く想定とする
 
 ### Let's build
 
