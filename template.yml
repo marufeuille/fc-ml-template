@@ -16,3 +16,5 @@ Resources:
         Timeout: 30
         MemorySize: 1024
         CodeUri: ./
+        EnvironmentVariables:
+          PYTHONUSERBASE: /mnt/auto/python
