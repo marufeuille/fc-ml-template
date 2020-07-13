@@ -73,24 +73,46 @@ COPY ./models /mnt/auto/models
 
 - コード以外のリソースは基本的にNASに置く想定とする
 
-### Let's build
+### Local Run
+#### 一度だけ実行
+```
+fun local invoke
+```
 
-- NAS領域の用意
+- なお```-e```オプションでイベントを渡すことができる。そのときはjson形式でローカルに保存の上パスを指定すれば良い。
+
+#### HTTP Triggerをつけて起動
+
+```
+fun local run
+```
+
+- この後、表示されたURLにアクセスすることでHTTPアクセス可能
+
+
+### Let's build & Deploy
+
+#### NAS領域の用意
 ```bash
 fun nas init
 ```
 
-- 必要パッケージ等の導入
+- 基本的に一度だけ実行すれば問題ない
+
+#### 必要パッケージ等の導入
 ```bash
 fun install
 ```
+- 以降パッケージの追加やモデルの変更を行った場合はこれをまず実行する
 
-- NAS領域のSYNC
+#### NAS領域のSYNC
 ```bash
 fun nas sync
 ```
 
-- デプロイ
+- 以降パッケージの追加やモデルの変更を行った場合はこれも実行する
+
+#### デプロイ
 ```bash
 fun deploy
 ```
